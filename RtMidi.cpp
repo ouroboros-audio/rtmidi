@@ -40,12 +40,34 @@
 #include "RtMidi.h"
 #include <sstream>
 
-inline namespace rt {
-inline namespace midi {
-
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #endif
+
+#if defined(__MACOSX_CORE__)
+#include <CoreMIDI/CoreMIDI.h>
+#endif
+
+#if defined(__WINDOWS_MM__) || defined(__WINDOWS_WASAPI__) || defined(__WINDOWS_ASIO__) || defined(__WINDOWS_UWP__)
+#include <windows.h>
+#endif
+
+#if defined(__WINDOWS_MM__)
+#include <mmsystem.h>
+#endif
+
+#if defined(__WINDOWS_UWP__)
+#include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Devices.Enumeration.h>
+#include <winrt/Windows.Devices.Midi.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Security.Cryptography.h>
+#endif
+
+inline namespace rt {
+inline namespace midi {
 
 #if (TARGET_OS_IPHONE == 1)
 
@@ -95,7 +117,6 @@ inline namespace midi {
 #endif
 
 #if defined(__MACOSX_CORE__)
-#include <CoreMIDI/CoreMIDI.h>
 
 class MidiInCore: public MidiInApi
 {
@@ -2648,9 +2669,6 @@ void MidiOutAlsa :: sendMessage( const unsigned char *message, size_t size )
 // MIDI input.  We convert the system specific time stamps to delta
 // time values.
 
-// Windows MM MIDI header files.
-#include <windows.h>
-#include <mmsystem.h>
 
 // Convert a null-terminated wide string or ANSI-encoded string to UTF-8.
 static std::string ConvertToUTF8(const TCHAR *str)
@@ -3230,15 +3248,6 @@ void MidiOutWinMM :: sendMessage( const unsigned char *message, size_t size )
 #include <regex>
 #include <string_view>
 #include <mutex>
-
-#include <windows.h>
-#include <winrt/base.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Devices.Enumeration.h>
-#include <winrt/Windows.Devices.Midi.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.Security.Cryptography.h>
 
 using namespace winrt;
 using namespace Windows::Foundation;
